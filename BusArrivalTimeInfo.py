@@ -29,25 +29,25 @@ def CallApi():
     key = 'thWTVZRkftwWDX%2F%2FBffYndD1kH0FA%2B9hrJ4tmX%2FTuFCKo00GOQ4qrPf0Qf5e0C83IRc5yPt%2F%2B6BM6X9n6P%2FSrQ%3D%3D'
     BusStopID = '8001378'
     while True:
-        # response = requests.get('http://openapitraffic.daejeon.go.kr/api/rest/arrive/getArrInfoByStopID?serviceKey='+key+'&BusStopID='+BusStopID)    
-        # dict_data_arrive = xmltodict.parse(response.text)
-        # l = []
-        # for i in dict_data_arrive['ServiceResult']['msgBody']['itemList']:
-        #     response = requests.get('http://openapitraffic.daejeon.go.kr/api/rest/stationinfo/getStationByUid?serviceKey='+key+'&arsId='+i['LAST_STOP_ID'])    
-        #     dict_data_stationinfo = xmltodict.parse(response.text)
-        #     BusStopNm = ''
-        #     if isinstance(dict_data_stationinfo['ServiceResult']['msgBody']['itemList'], dict):
-        #         BusStopNm = dict_data_stationinfo['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
-        #     else:
-        #         BusStopNm = dict_data_stationinfo['ServiceResult']['msgBody']['itemList'][0]['BUSSTOP_NM']
-        #     l.append((i['ROUTE_NO'], i['DESTINATION'],i['EXTIME_MIN'], i['MSG_TP'], BusStopNm))
-        # l.sort()
+        response = requests.get('http://openapitraffic.daejeon.go.kr/api/rest/arrive/getArrInfoByStopID?serviceKey='+key+'&BusStopID='+BusStopID)    
+        dict_data_arrive = xmltodict.parse(response.text)
         l = []
-        l.append(['104', '수통골', '6', '3', '한밭대학교'])
-        l.append(['106', '비래동', '14', '3', '온천교'])
-        l.append(['213', '대한통운종점', '3', '3', '서일여교'])
-        l.append(['316', '대한통운', '5', '3', '디엔에프'])
-        l.append(['617', '비래동', '10', '3', '크로바아파트'])
+        for i in dict_data_arrive['ServiceResult']['msgBody']['itemList']:
+            response = requests.get('http://openapitraffic.daejeon.go.kr/api/rest/stationinfo/getStationByUid?serviceKey='+key+'&arsId='+i['LAST_STOP_ID'])    
+            dict_data_stationinfo = xmltodict.parse(response.text)
+            BusStopNm = ''
+            if isinstance(dict_data_stationinfo['ServiceResult']['msgBody']['itemList'], dict):
+                BusStopNm = dict_data_stationinfo['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
+            else:
+                BusStopNm = dict_data_stationinfo['ServiceResult']['msgBody']['itemList'][0]['BUSSTOP_NM']
+            l.append((i['ROUTE_NO'], i['DESTINATION'],i['EXTIME_MIN'], i['MSG_TP'], BusStopNm))
+        l.sort()
+        # l = []
+        # l.append(['104', '수통골', '6', '3', '한밭대학교'])
+        # l.append(['106', '비래동', '14', '3', '온천교'])
+        # l.append(['213', '대한통운종점', '3', '3', '서일여교'])
+        # l.append(['316', '대한통운', '5', '3', '디엔에프'])
+        # l.append(['617', '비래동', '10', '3', '크로바아파트'])
         for i in range(5):
             labelList[i][0].setText(l[i][0])
             labelList[i][1].setText(l[i][1])
