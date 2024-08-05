@@ -43,8 +43,8 @@
    </property>
    <property name="font">
     <font>
-     <family>나눔고딕</family>
-     <pointsize>28</pointsize>
+     <family>나눔고딕 ExtraBold</family>
+     <pointsize>36</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
@@ -54,6 +54,9 @@
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
@@ -145,8 +148,8 @@
    </property>
    <property name="font">
     <font>
-     <family>나눔고딕</family>
-     <pointsize>28</pointsize>
+     <family>나눔고딕 ExtraBold</family>
+     <pointsize>36</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
@@ -156,6 +159,9 @@
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
   <widget class="QLabel" name="label_7">
@@ -247,8 +253,8 @@
    </property>
    <property name="font">
     <font>
-     <family>나눔고딕</family>
-     <pointsize>28</pointsize>
+     <family>나눔고딕 ExtraBold</family>
+     <pointsize>36</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
@@ -258,6 +264,9 @@
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
   <widget class="QLabel" name="label_11">
@@ -349,8 +358,8 @@
    </property>
    <property name="font">
     <font>
-     <family>나눔고딕</family>
-     <pointsize>28</pointsize>
+     <family>나눔고딕 ExtraBold</family>
+     <pointsize>36</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
@@ -360,6 +369,9 @@
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
   <widget class="QLabel" name="label_15">
@@ -451,8 +463,8 @@
    </property>
    <property name="font">
     <font>
-     <family>나눔고딕</family>
-     <pointsize>28</pointsize>
+     <family>나눔고딕 ExtraBold</family>
+     <pointsize>36</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
@@ -462,6 +474,9 @@
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
   <widget class="QLabel" name="label_19">
@@ -540,6 +555,90 @@
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_22">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>1040</y>
+     <width>751</width>
+     <height>111</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>나눔고딕 ExtraBold</family>
+     <pointsize>36</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(255, 0, 4);</string>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+   <property name="textFormat">
+    <enum>Qt::AutoText</enum>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_23">
+   <property name="geometry">
+    <rect>
+     <x>920</x>
+     <y>-10</y>
+     <width>141</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>나눔고딕</family>
+     <pointsize>20</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+   <property name="textFormat">
+    <enum>Qt::AutoText</enum>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_24">
+   <property name="geometry">
+    <rect>
+     <x>920</x>
+     <y>30</y>
+     <width>141</width>
+     <height>121</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>나눔고딕</family>
+     <pointsize>20</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+   <property name="textFormat">
+    <enum>Qt::AutoText</enum>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
  </widget>

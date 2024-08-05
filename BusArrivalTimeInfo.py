@@ -15,8 +15,12 @@ import xmltodict
 import time
 import threading
 import sys
+import csv
+from collections import defaultdict
 sys.path.append('.')
 from pyqt_test import *
+from datetime import datetime
+
 
 def CallApi():
     labelList = []
@@ -25,35 +29,49 @@ def CallApi():
     labelList.append([ui.label_10, ui.label_11, ui.label_12, ui.label_13])
     labelList.append([ui.label_14, ui.label_15, ui.label_16, ui.label_17])
     labelList.append([ui.label_18, ui.label_19, ui.label_20, ui.label_21])
-    
+    #weekDayList = ['월', '화', '수', '목', '금', '토', '일']
     key = 'thWTVZRkftwWDX%2F%2FBffYndD1kH0FA%2B9hrJ4tmX%2FTuFCKo00GOQ4qrPf0Qf5e0C83IRc5yPt%2F%2B6BM6X9n6P%2FSrQ%3D%3D'
-    BusStopID = '8001378'
+    BusStopID = '8001318'
     while True:
+        now = datetime.now()
+        ui.label_23.setText(str(now.month)+'월  '+str(now.day)+'일')
+        ui.label_24.setText(str(now.hour)+':'+str(now.minute))
+        
         response = requests.get('http://openapitraffic.daejeon.go.kr/api/rest/arrive/getArrInfoByStopID?serviceKey='+key+'&BusStopID='+BusStopID)    
         dict_data_arrive = xmltodict.parse(response.text)
         l = []
         for i in dict_data_arrive['ServiceResult']['msgBody']['itemList']:
-            response = requests.get('http://openapitraffic.daejeon.go.kr/api/rest/stationinfo/getStationByUid?serviceKey='+key+'&arsId='+i['LAST_STOP_ID'])    
-            dict_data_stationinfo = xmltodict.parse(response.text)
+            print(i)
             BusStopNm = ''
-            if isinstance(dict_data_stationinfo['ServiceResult']['msgBody']['itemList'], dict):
-                BusStopNm = dict_data_stationinfo['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
+            if 'LAST_STOP_ID' in i.keys():
+                response = requests.get('http://openapitraffic.daejeon.go.kr/api/rest/stationinfo/getStationByUid?serviceKey='+key+'&arsId='+i['LAST_STOP_ID'])    
+                dict_data_stationinfo = xmltodict.parse(response.text)
+                if isinstance(dict_data_stationinfo['ServiceResult']['msgBody']['itemList'], dict):
+                    BusStopNm = dict_data_stationinfo['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
+                else:
+                    BusStopNm = dict_data_stationinfo['ServiceResult']['msgBody']['itemList'][0]['BUSSTOP_NM']
             else:
-                BusStopNm = dict_data_stationinfo['ServiceResult']['msgBody']['itemList'][0]['BUSSTOP_NM']
-            l.append((i['ROUTE_NO'], i['DESTINATION'],i['EXTIME_MIN'], i['MSG_TP'], BusStopNm))
+                BusStopNm = '운행대기'
+            l.append([i['ROUTE_NO'], i['DESTINATION'],i['EXTIME_MIN'], i['MSG_TP'], BusStopNm])
         l.sort()
-        # l = []
-        # l.append(['104', '수통골', '6', '3', '한밭대학교'])
-        # l.append(['106', '비래동', '14', '3', '온천교'])
-        # l.append(['213', '대한통운종점', '3', '3', '서일여교'])
-        # l.append(['316', '대한통운', '5', '3', '디엔에프'])
-        # l.append(['617', '비래동', '10', '3', '크로바아파트'])
+        nowArriveList = []
         for i in range(5):
+            if len(l[i][0]) == 1:
+                l[i][0] = '마을'+l[i][0] 
             labelList[i][0].setText(l[i][0])
             labelList[i][1].setText(l[i][1])
-            labelList[i][2].setText(l[i][2]+'분')
+            if l[i][3] == '07':
+                labelList[i][2].setText('운행대기')
+            elif l[i][3] == '06':
+                labelList[i][2].setText('진입중')
+                nowArriveList.append(l[i][0])
+            else:
+                labelList[i][2].setText(l[i][2]+'분')
             labelList[i][3].setText(l[i][4])
-            
+        nowArriveStr = ''
+        for i in nowArriveList:
+            nowArriveStr += i + '  '
+        ui.label_22.setText(nowArriveStr)
         time.sleep(7)
 
 if __name__ == "__main__":
