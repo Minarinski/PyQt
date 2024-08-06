@@ -9,6 +9,8 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import sys
+sys.path.append('.')
 
 
 class Ui_Dialog(object):
@@ -18,7 +20,7 @@ class Ui_Dialog(object):
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(0, 0, 1081, 1921))
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap(":/Background/background.png"))
+        self.label.setPixmap(QtGui.QPixmap("background.png"))
         self.label.setScaledContents(True)
         self.label.setObjectName("label")
         self.label_2 = QtWidgets.QLabel(Dialog)
