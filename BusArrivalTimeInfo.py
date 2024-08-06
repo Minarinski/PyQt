@@ -21,8 +21,20 @@ sys.path.append('.')
 from pyqt_test import *
 from datetime import datetime
 
+key = ''
+
+def getInfo(filename):
+    global key
+    f = open(filename, 'r')
+    lines = f.readlines()
+    d = {}
+    for line in lines:
+        a,b = line.split('=')
+        d[a] = b
+    key = d['key']
 
 def CallApi():
+    global key
     labelList = []
     labelList.append([ui.label_2, ui.label_3, ui.label_4, ui.label_5])
     labelList.append([ui.label_6, ui.label_7, ui.label_8, ui.label_9])
@@ -30,7 +42,7 @@ def CallApi():
     labelList.append([ui.label_14, ui.label_15, ui.label_16, ui.label_17])
     labelList.append([ui.label_18, ui.label_19, ui.label_20, ui.label_21])
     #weekDayList = ['월', '화', '수', '목', '금', '토', '일']
-    key = 'thWTVZRkftwWDX%2F%2FBffYndD1kH0FA%2B9hrJ4tmX%2FTuFCKo00GOQ4qrPf0Qf5e0C83IRc5yPt%2F%2B6BM6X9n6P%2FSrQ%3D%3D'
+    
     BusStopID = '8001318'
     while True:
         now = datetime.now()
@@ -83,7 +95,7 @@ if __name__ == "__main__":
     
     ui = Ui_Dialog()
     ui.setupUi(Dialog)
-    
+    getInfo("info.txt")
     thread = threading.Thread(target=CallApi)
     thread.daemon = True; thread.start()
     Dialog.showMaximized()
