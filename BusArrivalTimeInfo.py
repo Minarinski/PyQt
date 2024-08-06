@@ -116,7 +116,16 @@ def CallApi():
                 if len(l[i+(5*pageFlag)][0]) == 1:
                     l[i+(5*pageFlag)][0] = '마을'+l[i+(5*pageFlag)][0] 
                 labelList[i][0].setText(l[i+(5*pageFlag)][0])
-                labelList[i][1].setText(l[i+(5*pageFlag)][1])
+                if len(l[i+(5*pageFlag)][1]) < 7:
+                    labelList[i][1].setText(l[i+(5*pageFlag)][1])
+                else:
+                    font = QtGui.QFont()
+                    font.setFamily("나눔고딕 ExtraBold")
+                    font.setPointSize(20)
+                    font.setBold(True)
+                    font.setWeight(75)
+                    labelList[i][1].setFont(font)
+                    labelList[i][1].setText(l[i+(5*pageFlag)][1])
                 if l[i+(5*pageFlag)][3] == '07':
                     labelList[i][2].setStyleSheet("color: rgb(255, 255, 255);")
                     labelList[i][2].setText('운행대기')
