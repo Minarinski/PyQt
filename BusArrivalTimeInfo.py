@@ -28,6 +28,7 @@ units = ["", "십", "백", "천"]
 num_to_korean = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"]
 engine = pyttsx3.init()
 engine.setProperty('rate', 150)
+ADImageList = ['1.png', '2.png', '3.png', '4.png', '5.png']
 
 def speak_text(text):
     engine.say(text)
@@ -107,11 +108,27 @@ def CallApi():
             l.append([i['ROUTE_NO'], i['DESTINATION'],i['EXTIME_MIN'], i['MSG_TP'], BusStopNm, CarNM, RouteID])
         l.sort()
         if len(l) < 10:
-            l.append(['999','0','0','0','0'])
-            l.append(['999','0','0','0','0'])
-            l.append(['999','0','0','0','0'])
-            l.append(['999','0','0','0','0'])
-            l.append(['999','0','0','0','0'])
+            l.append(['999','0','0','0','0','',''])
+            l.append(['999','0','0','0','0','',''])
+            l.append(['999','0','0','0','0','',''])
+            l.append(['999','0','0','0','0','',''])
+            l.append(['999','0','0','0','0','',''])
+        
+        for i in range(5):
+            if l[i+(5*pageFlag)][6]:
+                response = requests.get('http://openapitraffic.daejeon.go.kr/api/rest/busreginfo/getBusRegInfoByRouteId?serviceKey='+key+'&busRouteId='+l[i+(5*pageFlag)][6])    
+                dict_data = xmltodict.parse(response.text)
+                for j in dict_data['ServiceResult']['msgBody']['itemList']:
+                    if j['CAR_REG_NO'] == l[i+(5*pageFlag)][5]:
+                        #print(j['BUS_TYPE'], l[i+(5*pageFlag)][0])
+                        if j['BUS_TYPE'] == '2':
+                            l[i+(5*pageFlag)].append('1')
+                            break
+                        else:
+                            l[i+(5*pageFlag)].append('0')
+                            break
+            else:
+                l[i+(5*pageFlag)].append('0')
         nowArriveList = []
         #print(l)
         for i in range(5):
@@ -130,22 +147,10 @@ def CallApi():
                     labelList[i][4].setText("")
                     labelList[i][4].setPixmap(QtGui.QPixmap("maeul.png"))
                     labelList[i][4].setScaledContents(True)
-                elif l[i+(5*pageFlag)][5] != '':
-                    response = requests.get('http://openapitraffic.daejeon.go.kr/api/rest/busreginfo/getBusRegInfoByRouteId?serviceKey='+key+'&busRouteId='+l[i+(5*pageFlag)][6])    
-                    dict_data = xmltodict.parse(response.text)
-                    for j in dict_data['ServiceResult']['msgBody']['itemList']:
-                        if j['CAR_REG_NO'] == l[i+(5*pageFlag)][5]:
-                            #print(j['BUS_TYPE'], l[i+(5*pageFlag)][0])
-                            if j['BUS_TYPE'] == '2':
-                                labelList[i][4].setText("")
-                                labelList[i][4].setPixmap(QtGui.QPixmap("lowFloor.png"))
-                                labelList[i][4].setScaledContents(True)
-                                break
-                            else:
-                                labelList[i][4].setText("")
-                                labelList[i][4].setPixmap(QtGui.QPixmap("not.png"))
-                                labelList[i][4].setScaledContents(True)
-                                break
+                elif l[i+(5*pageFlag)][7] == '1':
+                    labelList[i][4].setText("")
+                    labelList[i][4].setPixmap(QtGui.QPixmap("lowFloor.png"))
+                    labelList[i][4].setScaledContents(True)
                 else:
                     labelList[i][4].setText("")
                     labelList[i][4].setPixmap(QtGui.QPixmap("not.png"))
@@ -187,6 +192,18 @@ def CallApi():
         for i in nowArriveList:
             speak_text(number_to_korean(i)+"번 버스가 진입중입니다. 뒤로 한걸음 물러서 주세요.")
         pageFlag = not pageFlag
+        
+        global ADImageList
+        
+        ui.label_30.setText("")
+        ui.label_30.setPixmap(QtGui.QPixmap(ADImageList[0]))
+        ui.label_30.setScaledContents(True)
+        ui.label_31.setText("")
+        ui.label_31.setPixmap(QtGui.QPixmap(ADImageList[1]))
+        ui.label_31.setScaledContents(True)
+        
+        ADImageList.append(ADImageList[0])
+        ADImageList = ADImageList[1:]
         time.sleep(7)
 
 if __name__ == "__main__":
