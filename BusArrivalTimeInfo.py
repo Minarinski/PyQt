@@ -68,25 +68,33 @@ def CallApi():
     global key, BusStopID
     pageFlag = False
     labelList = []
-    labelList.append([ui.label_2, ui.label_3, ui.label_4, ui.label_5])
-    labelList.append([ui.label_6, ui.label_7, ui.label_8, ui.label_9])
-    labelList.append([ui.label_10, ui.label_11, ui.label_12, ui.label_13])
-    labelList.append([ui.label_14, ui.label_15, ui.label_16, ui.label_17])
-    labelList.append([ui.label_18, ui.label_19, ui.label_20, ui.label_21])
+    labelList.append([ui.label_2, ui.label_3, ui.label_4, ui.label_5, ui.label_25])
+    labelList.append([ui.label_6, ui.label_7, ui.label_8, ui.label_9, ui.label_26])
+    labelList.append([ui.label_10, ui.label_11, ui.label_12, ui.label_13, ui.label_27])
+    labelList.append([ui.label_14, ui.label_15, ui.label_16, ui.label_17, ui.label_28])
+    labelList.append([ui.label_18, ui.label_19, ui.label_20, ui.label_21, ui.label_29])
     #weekDayList = ['월', '화', '수', '목', '금', '토', '일']
-    
     
     while True:
         now = datetime.now()
         ui.label_23.setText(str(now.month)+'월  '+str(now.day)+'일')
-        ui.label_24.setText(str(now.hour)+':'+str(now.minute))
+        ui.label_24.setText("{0:02d}:{1:02d}".format(now.hour, now.minute))
         
         response = requests.get('http://openapitraffic.daejeon.go.kr/api/rest/arrive/getArrInfoByStopID?serviceKey='+key+'&BusStopID='+BusStopID)    
         dict_data_arrive = xmltodict.parse(response.text)
         l = []
-        print(dict_data_arrive)
+        #print(dict_data_arrive)
         for i in dict_data_arrive['ServiceResult']['msgBody']['itemList']:
             BusStopNm = ''
+            CarNM = ''
+            RouteID = ''
+            if i['MSG_TP'] != '07':
+                if isinstance(i, dict):
+                    RouteID = i['ROUTE_CD']
+                    CarNM = i['CAR_REG_NO']
+                else:
+                    RouteID = i[0]['ROUTE_CD']
+                    CarNM = i[0]['CAR_REG_NO']
             if 'LAST_STOP_ID' in i.keys():
                 response = requests.get('http://openapitraffic.daejeon.go.kr/api/rest/stationinfo/getStationByUid?serviceKey='+key+'&arsId='+i['LAST_STOP_ID'])    
                 dict_data_stationinfo = xmltodict.parse(response.text)
@@ -96,7 +104,7 @@ def CallApi():
                     BusStopNm = dict_data_stationinfo['ServiceResult']['msgBody']['itemList'][0]['BUSSTOP_NM']
             else:
                 BusStopNm = '운행대기'
-            l.append([i['ROUTE_NO'], i['DESTINATION'],i['EXTIME_MIN'], i['MSG_TP'], BusStopNm])
+            l.append([i['ROUTE_NO'], i['DESTINATION'],i['EXTIME_MIN'], i['MSG_TP'], BusStopNm, CarNM, RouteID])
         l.sort()
         if len(l) < 10:
             l.append(['999','0','0','0','0'])
@@ -105,16 +113,43 @@ def CallApi():
             l.append(['999','0','0','0','0'])
             l.append(['999','0','0','0','0'])
         nowArriveList = []
+        #print(l)
         for i in range(5):
-            print(l[i+(5*pageFlag)][0])
+            #print(l[i+(5*pageFlag)][0])
             if l[i+(5*pageFlag)][0] == '999':
                 labelList[i][0].setText('')
                 labelList[i][1].setText('')
                 labelList[i][2].setText('')
                 labelList[i][3].setText('')
+                labelList[i][4].setText("")
+                labelList[i][4].setPixmap(QtGui.QPixmap("not.png"))
+                labelList[i][4].setScaledContents(True)
             else:
                 if len(l[i+(5*pageFlag)][0]) == 1:
                     l[i+(5*pageFlag)][0] = '마을'+l[i+(5*pageFlag)][0] 
+                    labelList[i][4].setText("")
+                    labelList[i][4].setPixmap(QtGui.QPixmap("maeul.png"))
+                    labelList[i][4].setScaledContents(True)
+                elif l[i+(5*pageFlag)][5] != '':
+                    response = requests.get('http://openapitraffic.daejeon.go.kr/api/rest/busreginfo/getBusRegInfoByRouteId?serviceKey='+key+'&busRouteId='+l[i+(5*pageFlag)][6])    
+                    dict_data = xmltodict.parse(response.text)
+                    for j in dict_data['ServiceResult']['msgBody']['itemList']:
+                        if j['CAR_REG_NO'] == l[i+(5*pageFlag)][5]:
+                            #print(j['BUS_TYPE'], l[i+(5*pageFlag)][0])
+                            if j['BUS_TYPE'] == '2':
+                                labelList[i][4].setText("")
+                                labelList[i][4].setPixmap(QtGui.QPixmap("lowFloor.png"))
+                                labelList[i][4].setScaledContents(True)
+                                break
+                            else:
+                                labelList[i][4].setText("")
+                                labelList[i][4].setPixmap(QtGui.QPixmap("not.png"))
+                                labelList[i][4].setScaledContents(True)
+                                break
+                else:
+                    labelList[i][4].setText("")
+                    labelList[i][4].setPixmap(QtGui.QPixmap("not.png"))
+                    labelList[i][4].setScaledContents(True)
                 labelList[i][0].setText(l[i+(5*pageFlag)][0])
                 if len(l[i+(5*pageFlag)][1]) < 7:
                     labelList[i][1].setText(l[i+(5*pageFlag)][1])
@@ -126,6 +161,7 @@ def CallApi():
                     font.setWeight(75)
                     labelList[i][1].setFont(font)
                     labelList[i][1].setText(l[i+(5*pageFlag)][1])
+                    
                 if l[i+(5*pageFlag)][3] == '07':
                     labelList[i][2].setStyleSheet("color: rgb(255, 255, 255);")
                     labelList[i][2].setText('운행대기')
@@ -133,13 +169,17 @@ def CallApi():
                 elif l[i+(5*pageFlag)][3] == '06':
                     labelList[i][2].setStyleSheet("color: rgb(255, 0, 0);")
                     labelList[i][2].setText('진입중')
-                    nowArriveList.append(l[i+(5*pageFlag)][0])
                     labelList[i][3].setText(l[i+(5*pageFlag)][4])
                 else:
                     labelList[i][2].setStyleSheet("color: rgb(255, 255, 255);")
                     labelList[i][2].setText(l[i+(5*pageFlag)][2]+'분')
                     labelList[i][3].setText(l[i+(5*pageFlag)][4])
-            
+        for i in range(len(l)):
+            if len(l[i][0]) == 1:
+                    l[i][0] = '마을'+l[i][0] 
+            if l[i][3] == '06':
+                nowArriveList.append(l[i][0])
+                
         nowArriveStr = ''
         for i in nowArriveList:
             nowArriveStr += i + '  '
