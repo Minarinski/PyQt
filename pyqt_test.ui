@@ -26,7 +26,7 @@
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="resources.qrc">:/Background/background.png</pixmap>
+    <pixmap resource="resources.qrc">:/Background/image/asset/background.png</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>
@@ -50,7 +50,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -77,7 +77,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -104,7 +104,7 @@
     <string notr="true">color: rgb(255, 255, 255);</string>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -131,7 +131,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -155,7 +155,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -182,7 +182,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -209,7 +209,7 @@
     <string notr="true">color: rgb(255, 255, 255);</string>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -236,7 +236,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -260,7 +260,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -287,7 +287,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -314,7 +314,7 @@
     <string notr="true">color: rgb(255, 255, 255);</string>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -341,7 +341,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -365,7 +365,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -392,7 +392,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -419,7 +419,7 @@
     <string notr="true">color: rgb(255, 255, 255);</string>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -446,7 +446,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -470,7 +470,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -497,7 +497,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -524,7 +524,7 @@
     <string notr="true">color: rgb(255, 255, 255);</string>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -551,7 +551,7 @@
     </font>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string/>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -578,7 +578,7 @@
     <string notr="true">color: rgb(255, 0, 4);</string>
    </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string>네트워크 연결 중 입니다.</string>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -651,7 +651,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>a</string>
+    <string/>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -667,7 +667,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>a</string>
+    <string/>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -683,7 +683,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>a</string>
+    <string/>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -699,7 +699,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>a</string>
+    <string/>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -715,7 +715,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>a</string>
+    <string/>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -731,7 +731,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>b</string>
+    <string/>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -747,7 +747,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>b</string>
+    <string/>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>

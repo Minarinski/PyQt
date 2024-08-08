@@ -15,7 +15,6 @@ import xmltodict
 import time
 import threading
 import sys
-import csv
 from collections import defaultdict
 sys.path.append('.')
 from pyqt_test import *
@@ -28,7 +27,7 @@ units = ["", "십", "백", "천"]
 num_to_korean = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"]
 engine = pyttsx3.init()
 engine.setProperty('rate', 150)
-ADImageList = ['1.png', '2.png', '3.png', '4.png', '5.png']
+ADImageList = ['image/AD/1.png', 'image/AD/2.png', 'image/AD/3.png', 'image/AD/4.png', 'image/AD/5.png']
 
 def speak_text(text):
     engine.say(text)
@@ -131,6 +130,7 @@ def CallApi():
                 l[i+(5*pageFlag)].append('0')
         nowArriveList = []
         #print(l)
+        #l[0][3] = '06'
         for i in range(5):
             #print(l[i+(5*pageFlag)][0])
             if l[i+(5*pageFlag)][0] == '999':
@@ -139,21 +139,21 @@ def CallApi():
                 labelList[i][2].setText('')
                 labelList[i][3].setText('')
                 labelList[i][4].setText("")
-                labelList[i][4].setPixmap(QtGui.QPixmap("not.png"))
+                labelList[i][4].setPixmap(QtGui.QPixmap("image/asset/not.png"))
                 labelList[i][4].setScaledContents(True)
             else:
                 if len(l[i+(5*pageFlag)][0]) == 1:
                     l[i+(5*pageFlag)][0] = '마을'+l[i+(5*pageFlag)][0] 
                     labelList[i][4].setText("")
-                    labelList[i][4].setPixmap(QtGui.QPixmap("maeul.png"))
+                    labelList[i][4].setPixmap(QtGui.QPixmap("image/asset/maeul.png"))
                     labelList[i][4].setScaledContents(True)
                 elif l[i+(5*pageFlag)][7] == '1':
                     labelList[i][4].setText("")
-                    labelList[i][4].setPixmap(QtGui.QPixmap("lowFloor.png"))
+                    labelList[i][4].setPixmap(QtGui.QPixmap("image/asset/lowFloor.png"))
                     labelList[i][4].setScaledContents(True)
                 else:
                     labelList[i][4].setText("")
-                    labelList[i][4].setPixmap(QtGui.QPixmap("not.png"))
+                    labelList[i][4].setPixmap(QtGui.QPixmap("image/asset/not.png"))
                     labelList[i][4].setScaledContents(True)
                 labelList[i][0].setText(l[i+(5*pageFlag)][0])
                 if len(l[i+(5*pageFlag)][1]) < 7:
@@ -166,7 +166,7 @@ def CallApi():
                     font.setWeight(75)
                     labelList[i][1].setFont(font)
                     labelList[i][1].setText(l[i+(5*pageFlag)][1])
-                labelList[i][3].setStyleSheet("color: rgb(255, 255, 255);")
+                labelList[i][3].setStyleSheet("color: rgb(0, 0, 0);")
                 if l[i+(5*pageFlag)][3] == '07':
                     labelList[i][2].setStyleSheet("color: rgb(255, 255, 255);")
                     labelList[i][2].setText('운행대기')
@@ -193,14 +193,6 @@ def CallApi():
             if l[i][3] == '06':
                 nowArriveList.append(l[i][0])
                 
-        nowArriveStr = ''
-        for i in nowArriveList:
-            nowArriveStr += i + '  '
-        ui.label_22.setText(nowArriveStr)
-        for i in nowArriveList:
-            speak_text(number_to_korean(i)+"번 버스가 진입중입니다. 뒤로 한걸음 물러서 주세요.")
-        pageFlag = not pageFlag
-        
         global ADImageList
         
         ui.label_30.setText("")
@@ -212,6 +204,16 @@ def CallApi():
         
         ADImageList.append(ADImageList[0])
         ADImageList = ADImageList[1:]
+                
+        nowArriveStr = ''
+        for i in nowArriveList:
+            nowArriveStr += i + '  '
+        ui.label_22.setText(nowArriveStr)
+        for i in nowArriveList:
+            speak_text(number_to_korean(i)+"번 버스가 진입중입니다. 뒤로 한걸음 물러서 주세요.")
+        pageFlag = not pageFlag
+        
+        
         time.sleep(7)
 
 if __name__ == "__main__":
