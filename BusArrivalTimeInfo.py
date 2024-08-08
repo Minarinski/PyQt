@@ -166,7 +166,7 @@ def CallApi():
                     font.setWeight(75)
                     labelList[i][1].setFont(font)
                     labelList[i][1].setText(l[i+(5*pageFlag)][1])
-                    
+                labelList[i][3].setStyleSheet("color: rgb(255, 255, 255);")
                 if l[i+(5*pageFlag)][3] == '07':
                     labelList[i][2].setStyleSheet("color: rgb(255, 255, 255);")
                     labelList[i][2].setText('운행대기')
@@ -175,6 +175,14 @@ def CallApi():
                     labelList[i][2].setStyleSheet("color: rgb(255, 0, 0);")
                     labelList[i][2].setText('진입중')
                     labelList[i][3].setText(l[i+(5*pageFlag)][4])
+                elif int(l[i+(5*pageFlag)][2]) <= 3:
+                    if int(l[i+(5*pageFlag)][2]) <= 1:
+                        labelList[i][3].setStyleSheet("color: rgb(255, 0, 0);")
+                        labelList[i][3].setText('전 정류장에서 출발')
+                    else:
+                        labelList[i][3].setText(l[i+(5*pageFlag)][4])
+                    labelList[i][2].setStyleSheet("color: rgb(255, 255, 255);")
+                    labelList[i][2].setText('잠시 후\n도착')
                 else:
                     labelList[i][2].setStyleSheet("color: rgb(255, 255, 255);")
                     labelList[i][2].setText(l[i+(5*pageFlag)][2]+'분')
