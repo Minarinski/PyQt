@@ -20,6 +20,8 @@ sys.path.append('.')
 from pyqt_test import *
 from datetime import datetime
 import pyttsx3
+import serial
+import re
     
 key = ''
 BusStopID = ''
@@ -62,7 +64,55 @@ def getInfo(filename):
     key = d['key']
     BusStopID = d['BusStopID']
     print(BusStopID, type(BusStopID), key, type(key))
-    
+
+def SerialRead():
+    ser = serial.Serial(
+    port = 'COM5', 
+    baudrate=115200, 
+    parity='N',
+    stopbits=1,
+    bytesize=8,
+    timeout=8
+    )
+
+    BoardingUiList = [ui.label_32, ui.label_33, ui.label_34, ui.label_35]
+
+    #시리얼포트 접속
+    ser.isOpen()
+
+    #시리얼포트 번호 출력
+    print(ser.name)
+
+    # 정규식 패턴
+    pattern = re.compile('^0x02.*0x03$')
+    BoardingNumList = []
+    while True:
+        if ser.in_waiting > 0:  # 읽을 데이터가 있는지 확인
+            data = ser.readline().decode('utf-8').rstrip() # 데이터를 읽고 디코딩
+            # 정규식 매칭
+            if pattern.match(data):
+                dataSplit = data[4:-4].split(',')
+                if dataSplit[1] == '1':
+                    print(f"{dataSplit[0]}번 버스 요청")
+                    if dataSplit[0] not in BoardingNumList:     
+                        BoardingNumList.append(dataSplit[0])
+                elif dataSplit[1] == '2':
+                    print(f"{dataSplit[0]}번 버스 헬프콜")
+                    BoardingNumList.append(dataSplit[0])
+                else:
+                    print(f"{dataSplit[0]}번 버스 요청 취소")
+                    for i in range(len(BoardingNumList)):
+                        if BoardingNumList[i] == dataSplit[0]:
+                            BoardingNumList.pop(i)
+                            break
+            for i in BoardingUiList:
+                i.setText("")
+            for i in range(len(BoardingNumList)):
+                BoardingUiList[i].setText(BoardingNumList[i])
+
+
+    # 사용이 끝나면 시리얼 포트를 닫습니다.
+    ser.close()
 
 def CallApi():
     global key, BusStopID
@@ -226,7 +276,11 @@ if __name__ == "__main__":
     ui = Ui_Dialog()
     ui.setupUi(Dialog)
     getInfo("info.txt")
-    thread = threading.Thread(target=CallApi)
-    thread.daemon = True; thread.start()
+    threadCallApi = threading.Thread(target=CallApi)
+    threadCallApi.daemon = True; threadCallApi.start()
+    
+    threadSerialRead = threading.Thread(target=SerialRead)
+    threadSerialRead.daemon = True; threadSerialRead.start()
+    
     Dialog.showMaximized()
     sys.exit(app.exec_())
