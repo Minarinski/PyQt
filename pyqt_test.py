@@ -153,7 +153,7 @@ class Ui_Dialog(object):
         self.label_12.setAlignment(QtCore.Qt.AlignCenter)
         self.label_12.setObjectName("label_12")
         self.label_13 = QtWidgets.QLabel(Dialog)
-        self.label_13.setGeometry(QtCore.QRect(700, 610, 361, 121))
+        self.label_13.setGeometry(QtCore.QRect(700, 600, 361, 121))
         font = QtGui.QFont()
         font.setFamily("나눔고딕")
         font.setPointSize(28)
