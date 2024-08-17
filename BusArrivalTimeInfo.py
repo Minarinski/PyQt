@@ -13,6 +13,7 @@ import serial
 from pyqt_test import *
 
 flag = 0
+GlobalArriveInfoList = []
 
 class ApiThread(QThread):
     update_arrive_info = pyqtSignal(list)
@@ -31,6 +32,7 @@ class ApiThread(QThread):
                 BusStopNm = '운행대기'
                 RouteID = ''
                 CarNM = ''
+                #print(ArriveInfo)
                 if ArriveInfo['MSG_TP'] != '07':
                     RouteID = ArriveInfo['ROUTE_CD']
                     CarNM = ArriveInfo['CAR_REG_NO']
@@ -56,7 +58,10 @@ class ApiThread(QThread):
                     'ROUTE_NO': '999', 'DESTINATION': '', 'EXTIME_MIN': '',
                     'MSG_TP': '', 'BusStopNm': '', 'CarNM': '', 'RouteID': '', 'isLowFloor': '0'
                 })
-
+            
+            global GlobalArriveInfoList
+            GlobalArriveInfoList = ArriveInfoList
+            
             self.update_arrive_info.emit(ArriveInfoList)
             time.sleep(2)
 
@@ -79,15 +84,24 @@ class SerialThread(QThread):
     def run(self):
         pattern = re.compile('^0x02.*0x03$')
         global flag
+        stx = 2
+        stx = stx.to_bytes(1)
+        etx = 3
+        etx = etx.to_bytes(1)
         while True:
             if self.ser.in_waiting > 0:
                 data = self.ser.readline().decode('utf-8').rstrip()
+                print(data)
                 if pattern.match(data):
                     dataSplit = data[4:-4].split(',')
                     idx = int(dataSplit[0]) + (5 * flag)
                     if dataSplit[1] == '1':
-                        if idx not in self.BoardingNumList:     
+                        if idx not in self.BoardingNumList and idx < 6:  
                             self.BoardingNumList.append(idx)
+                            print(idx, self.BoardingNumList)
+                            txData = GlobalArriveInfoList[idx]['ROUTE_NO']
+                            txData = txData.encode('utf-8')
+                            self.ser.write(stx + txData + etx)
                     elif dataSplit[1] == '2':
                         self.BoardingNumList.append(idx)
                     else:
@@ -186,7 +200,10 @@ class BusArrivalApp(QtWidgets.QDialog):
             self.BoardingUiList[i].setText('')
         
         for i in range(len(self.BoardingNumList)):
-            self.BoardingUiList[i].setText(self.ArriveInfoList[self.BoardingNumList[i]]['ROUTE_NO']) if self.ArriveInfoList[self.BoardingNumList[i]]['ROUTE_NO'] != '999' else self.BoardingUiList[i].setText('')
+            if self.ArriveInfoList[self.BoardingNumList[i]]['ROUTE_NO'] != '999':
+                self.BoardingUiList[i].setText(self.ArriveInfoList[self.BoardingNumList[i]]['ROUTE_NO'])
+            else:
+                self.BoardingUiList[i].setText('')  
 
     def updatePageFlag(self, pageFlag):
         self.pageFlag = pageFlag
