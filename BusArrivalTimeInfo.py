@@ -32,10 +32,16 @@ class ApiThread(QThread):
                 BusStopNm = '운행대기'
                 RouteID = ''
                 CarNM = ''
-                #print(ArriveInfo)
+                
+
                 if ArriveInfo['MSG_TP'] != '07':
+                    arsId = ArriveInfo['LAST_STOP_ID']
+                    response = requests.get(f'http://openapitraffic.daejeon.go.kr/api/rest/stationinfo/getStationByUid?serviceKey={self.key}&arsId={arsId}')
+                    BusStopDict = xmltodict.parse(response.text)
                     RouteID = ArriveInfo['ROUTE_CD']
                     CarNM = ArriveInfo['CAR_REG_NO']
+                    BusStopNm = BusStopDict['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
+                    
                 ArriveInfoListBefore.append([ArriveInfo['ROUTE_NO'], {
                     'ROUTE_NO': ArriveInfo['ROUTE_NO'],
                     'DESTINATION': ArriveInfo['DESTINATION'],
