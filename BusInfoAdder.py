@@ -3,6 +3,7 @@ import xmltodict
 from BusInfoAdderPyQt import *
 import serial
 import serial.tools.list_ports
+import time
 
 ui = Ui_Dialog()
 
@@ -30,10 +31,33 @@ def getBusInfo(busname, busrouteno):
     dict_data = xmltodict.parse(response.text)
     l = []
     for i in dict_data['ServiceResult']['msgBody']['itemList']:
-        l.append([busname, busrouteno, i['BUS_STOP_ID'], i['GPS_LATI'], i['GPS_LONG']])
-    
+        l.append({'busname': busname, 'busrouteno' : busrouteno, 'BusStopID':i['BUS_STOP_ID'], 'GPS_LATI':i['GPS_LATI'], 'GPS_LONG':i['GPS_LONG']})
+    stx = 2
+    stx = stx.to_bytes(1)
+    etx = 3
+    etx = etx.to_bytes(1)
     for i in l:
-        print(i)
+        f = ','.join([i['busname'], i['busrouteno'], i['BusStopID']])
+        f = 'Data,'+f
+        print('First = '+f)
+        f = f.encode('utf-8')
+        
+        serial_connection.write(stx+f+etx)
+        rx = serial_connection.readline().decode('utf-8')
+        print(list(rx))
+        # if 'N' not in rx:
+        #     break
+        
+        s = ','.join([i['GPS_LATI'], i['GPS_LONG']])
+        s = 'data,'+s
+        print('Second = '+s)    
+        s = s.encode('utf-8')
+        
+        serial_connection.write(stx+s+etx)
+        rx = serial_connection.readline().decode('utf-8')
+        print(list(rx))
+        # if 'N' not in rx:
+        #     break
             
 
 def populate_ports():
@@ -52,7 +76,7 @@ def open_serial():
     baudrate = ui.BaudrateCombo.currentText()
     if port and baudrate:
         try:
-            serial_connection = serial.Serial(port, baudrate)
+            serial_connection = serial.Serial(port, baudrate, timeout=1)
             ui.IsOpenLabel.setText("연결 되었습니다.")
         except Exception as e:
             ui.IsOpenLabel.setText("연결 실패: {}".format(str(e)))
