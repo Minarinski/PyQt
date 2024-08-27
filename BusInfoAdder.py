@@ -58,6 +58,12 @@ def getBusInfo(busname, busrouteno):
         print(list(rx))
         # if 'N' not in rx:
         #     break
+    stx = 2
+    stx = stx.to_bytes(1)
+    etx = 3
+    etx = etx.to_bytes(1)
+    data = 'OutPut'.encode('utf-8')
+    serial_connection.write(stx + data + etx)
             
 
 def populate_ports():
@@ -66,7 +72,7 @@ def populate_ports():
         ui.PortCombo.addItem(port.device)
 
 def populate_baudrates():
-    baudrates = [9600, 115200, 248000]
+    baudrates = [115200, 9600, 248000]
     for baudrate in baudrates:
         ui.BaudrateCombo.addItem(str(baudrate))
 
@@ -77,14 +83,20 @@ def open_serial():
     if port and baudrate:
         try:
             serial_connection = serial.Serial(port, baudrate, timeout=1)
-            ui.IsOpenLabel.setText("연결 되었습니다.")
+            ui.IsOpenLabel.setText("연결 완료")
+            stx = 2
+            stx = stx.to_bytes(1)
+            etx = 3
+            etx = etx.to_bytes(1)
+            data = 'Input'.encode('utf-8')
+            serial_connection.write(stx + data + etx)
         except Exception as e:
             ui.IsOpenLabel.setText("연결 실패: {}".format(str(e)))
 
 def close_serial():
     if serial_connection and serial_connection.is_open:
         serial_connection.close()
-        ui.IsOpenLabel.setText("연결이 끊어졌습니다.")
+        ui.IsOpenLabel.setText("연결 끊김")
 
 def print_bus_route():
     if serial_connection:
