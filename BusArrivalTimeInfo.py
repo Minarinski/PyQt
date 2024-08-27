@@ -18,10 +18,11 @@ GlobalArriveInfoList = []
 class ApiThread(QThread):
     update_arrive_info = pyqtSignal(list)
 
-    def __init__(self, key, BusStopID):
+    def __init__(self, key, BusStopID, BusStopArs):
         super().__init__()
         self.key = key
         self.BusStopID = BusStopID
+        self.BusStopArs = BusStopArs
 
     def run(self):
         while True:
@@ -32,15 +33,25 @@ class ApiThread(QThread):
                 BusStopNm = '운행대기'
                 RouteID = ''
                 CarNM = ''
-                
 
-                if ArriveInfo['MSG_TP'] != '07':
-                    arsId = ArriveInfo['LAST_STOP_ID']
-                    response = requests.get(f'http://openapitraffic.daejeon.go.kr/api/rest/stationinfo/getStationByUid?serviceKey={self.key}&arsId={arsId}')
-                    BusStopDict = xmltodict.parse(response.text)
+                if ArriveInfo['MSG_TP'] != '07' and ArriveInfo['MSG_TP'] != '06':
+                    if len(ArriveInfo) != 2:
+                        #print(ArriveInfo, len(ArriveInfo))
+                        if 'LAST_STOP_ID' in ArriveInfo.keys():
+                            arsId = ArriveInfo['LAST_STOP_ID']
+                    elif len(ArriveInfo) == 2:
+                        print(ArriveInfo, len(ArriveInfo))
+                        if 'LAST_STOP_ID' in ArriveInfo[0].keys():
+                            arsId = ArriveInfo[0]['LAST_STOP_ID']
+                    else:
+                        arsId = None
+                    if len(ArriveInfo) != 0  and arsId:
+                        response = requests.get(f'http://openapitraffic.daejeon.go.kr/api/rest/stationinfo/getStationByUid?serviceKey={self.key}&arsId={arsId}')
+                        BusStopDict = xmltodict.parse(response.text)
+                        BusStopNm = BusStopDict['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
                     RouteID = ArriveInfo['ROUTE_CD']
                     CarNM = ArriveInfo['CAR_REG_NO']
-                    BusStopNm = BusStopDict['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
+                    
                     
                 ArriveInfoListBefore.append([ArriveInfo['ROUTE_NO'], {
                     'ROUTE_NO': ArriveInfo['ROUTE_NO'],
@@ -74,7 +85,7 @@ class ApiThread(QThread):
 class SerialThread(QThread):
     update_boarding_info = pyqtSignal(list)
 
-    def __init__(self, serial_port, pageFlag):
+    def __init__(self, serial_port, pageFlag, BusStopArs):
         super().__init__()
         self.ser = serial.Serial(
             port=serial_port, 
@@ -86,6 +97,7 @@ class SerialThread(QThread):
         )
         self.pageFlag = pageFlag
         self.BoardingNumList = []
+        self.BusStopArs = BusStopArs
 
     def run(self):
         pattern = re.compile('^0x02.*0x03$')
@@ -105,8 +117,20 @@ class SerialThread(QThread):
                         if idx not in self.BoardingNumList and idx < 6:  
                             self.BoardingNumList.append(idx)
                             print(idx, self.BoardingNumList)
-                            txData = GlobalArriveInfoList[idx]['ROUTE_NO']
-                            txData = txData.encode('utf-8')
+                            txData = []
+                            txData.append(dataSplit[1])
+                            if GlobalArriveInfoList[idx]['ROUTE_NO'][0] == '마':
+                                txData.append('00' + GlobalArriveInfoList[idx]['ROUTE_NO'][-1])
+                            else:
+                                txData.append(GlobalArriveInfoList[idx]['ROUTE_NO'])
+                            #txData.append(GlobalArriveInfoList[idx]['CarNM'][-4:])
+                            txData.append('1215')
+                            txData = ','.join(txData)
+                            txData2 = []
+                            txData2.append('0000')
+                            txData2.append(self.BusStopArs + '@')
+                            txData2 = ''.join(txData2)
+                            txData = (txData + '!' + txData2 + '!').encode('utf-8')                            
                             self.ser.write(stx + txData + etx)
                     elif dataSplit[1] == '2':
                         self.BoardingNumList.append(idx)
@@ -140,6 +164,7 @@ class BusArrivalApp(QtWidgets.QDialog):
         
         self.key = ''
         self.BusStopID = ''
+        self.BusStopArs = ''
         self.ArriveInfoList = []
         self.pageFlag = 0
         self.BoardingNumList = []
@@ -159,11 +184,11 @@ class BusArrivalApp(QtWidgets.QDialog):
         self.getInfo("info.txt")
 
         # QThreads
-        self.api_thread = ApiThread(self.key, self.BusStopID)
+        self.api_thread = ApiThread(self.key, self.BusStopID, self.BusStopArs)
         self.api_thread.update_arrive_info.connect(self.updateArriveInfo)
         self.api_thread.start()
 
-        self.serial_thread = SerialThread('COM8', self.pageFlag)
+        self.serial_thread = SerialThread('COM8', self.pageFlag, self.BusStopArs)
         self.serial_thread.update_boarding_info.connect(self.updateBoardingInfo)
         self.serial_thread.start()
 
@@ -193,6 +218,7 @@ class BusArrivalApp(QtWidgets.QDialog):
                 d[a] = b.strip()
             self.key = d['key']
             self.BusStopID = d['BusStopID']
+            self.BusStopArs = d['BusStopArs']
 
     def updateArriveInfo(self, ArriveInfoList):
         self.ArriveInfoList = ArriveInfoList
@@ -245,12 +271,21 @@ class BusArrivalApp(QtWidgets.QDialog):
         self.labelList[i]['Destination'].setText(self.ArriveInfoList[idx]['DESTINATION'])
         self.labelList[i]['Location'].setText(self.ArriveInfoList[idx]['BusStopNm'])
         if self.ArriveInfoList[idx]['MSG_TP'] == '07':
+            self.labelList[i]['Minute'].setStyleSheet("color: rgb(255, 255, 255);")
             self.labelList[i]['Minute'].setText('운행대기')
         elif self.ArriveInfoList[idx]['MSG_TP'] == '06':
+            self.labelList[i]['Minute'].setStyleSheet("color: rgb(255, 0, 4);")
             self.labelList[i]['Minute'].setText('진입중')
+            print(idx, self.BoardingNumList)
+            if idx in self.BoardingNumList:
+                self.BoardingNumList.remove(idx)
+                self.serial_thread.update_boarding_info.emit(self.BoardingNumList)
+                print(self.BoardingNumList)
         elif int(self.ArriveInfoList[idx]['EXTIME_MIN']) <= 3:
+            self.labelList[i]['Minute'].setStyleSheet("color: rgb(255, 0, 4);")
             self.labelList[i]['Minute'].setText('잠시 후\n도착')
         else:
+            self.labelList[i]['Minute'].setStyleSheet("color: rgb(255, 255, 255);")
             self.labelList[i]['Minute'].setText(self.ArriveInfoList[idx]['EXTIME_MIN'] + '분')
 
     def updateAds(self):
