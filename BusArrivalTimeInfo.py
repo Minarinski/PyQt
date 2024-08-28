@@ -157,6 +157,21 @@ class SerialThread(QThread):
                             GlobalBoardsList.remove('1'+str(idx))
                         if '2'+str(idx) in GlobalBoardsList:
                             GlobalBoardsList.remove('2'+str(idx))
+                        txData = []
+                        txData.append('0')
+                        if GlobalArriveInfoList[idx]['ROUTE_NO'][0] == '마':
+                            txData.append(str('00' + GlobalArriveInfoList[idx]['ROUTE_NO'][-1]))
+                        else:
+                            txData.append(str(GlobalArriveInfoList[idx]['ROUTE_NO']))
+                        #txData.append(GlobalArriveInfoList[idx]['CarNM'][-4:])
+                        txData.append('1315')
+                        txData = ','.join(txData)
+                        txData2 = []
+                        txData2.append('0000')
+                        txData2.append(str(self.BusStopArs) + '@')
+                        txData2 = ''.join(txData2)
+                        txData = (txData + '!' + txData2 + '!').encode('utf-8')                            
+                        self.ser.write(stx + txData + etx)
                         
                             
             self.update_boarding_info.emit(self.BoardingNumList)
@@ -215,7 +230,9 @@ class SpeakThread(QThread):
         return korean_number.strip()
 
     def speak(self, text):
-        if text[0] == '마':
+        if text[0] == '안':
+            self.engine.say(text)
+        elif text[0] == '마':
             self.engine.say(text[:2] + self.number_to_korean(text[2]) + text[3:])
         else:
             self.engine.say(self.number_to_korean(text[:3]) + text[3:])
@@ -277,6 +294,10 @@ class BusArrivalApp(QtWidgets.QDialog):
         self.timer = QTimer()
         self.timer.timeout.connect(self.updateGui)
         self.timer.start(1000)  # 1초마다 업데이트
+        
+        self.speakTimer = QTimer()
+        self.speakTimer.timeout.connect(self.guideSound)
+        self.speakTimer.start(10000)
 
     def setupUi(self):
         self.ui = Ui_Dialog()
@@ -321,6 +342,10 @@ class BusArrivalApp(QtWidgets.QDialog):
 
     def updatePageFlag(self, pageFlag):
         self.pageFlag = pageFlag
+        
+    def guideSound(self):
+        global speakList
+        speakList.append('안내방송입니다.')
 
     def updateGui(self):
         self.now = datetime.now()
