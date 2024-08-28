@@ -52,7 +52,8 @@ class ApiThread(QThread):
                     if len(ArriveInfo) != 0  and arsId:
                         response = requests.get(f'http://openapitraffic.daejeon.go.kr/api/rest/stationinfo/getStationByUid?serviceKey={self.key}&arsId={arsId}')
                         BusStopDict = xmltodict.parse(response.text)
-                        BusStopNm = BusStopDict['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
+                        if 'BUSSTOP_NM' in BusStopDict['ServiceResult']['msgBody']['itemList'].keys():
+                            BusStopNm = BusStopDict['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
                     RouteID = ArriveInfo['ROUTE_CD']
                     CarNM = ArriveInfo['CAR_REG_NO']
                     
@@ -121,7 +122,7 @@ class SerialThread(QThread):
                     if dataSplit[1] == '1' or dataSplit[1] == '2':
                         if idx not in GlobalBoardsList and idx < 6:  
                             GlobalBoardsList.append(dataSplit[1]+str(idx))
-                            n = GlobalArriveInfoList[int(GlobalBoardsList[idx][1:])]['ROUTE_NO']
+                            n = GlobalArriveInfoList[idx]['ROUTE_NO']
                             if dataSplit[1] == '1':
                                 speakList.append(n+'번 버스 호출 완료')
                             else:
@@ -159,7 +160,8 @@ class PageFlagThread(QThread):
         global flag
         while True:
             time.sleep(7)
-            self.pageFlag = (self.pageFlag + 1) % self.pageCnt
+            if self.pageCnt != 0:
+                self.pageFlag = (self.pageFlag + 1) % self.pageCnt
             self.update_page_flag.emit(self.pageFlag)
             flag = self.pageFlag
 

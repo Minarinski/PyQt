@@ -38,23 +38,25 @@ def getBusInfo(busname, busrouteno):
     etx = 3
     etx = etx.to_bytes(1)
     for i in l:
-        f = ','.join([i['busname'], i['busrouteno'], i['BusStopID']])
+        f = ','.join([i['busname'], i['busrouteno'], i['BusStopID'][:5]])
         f = 'Data,'+f
-        print('First = '+f)
+        f = f + ('0'*(20-len(f)))
+        print('First = '+f, len(f))
         f = f.encode('utf-8')
         
-        serial_connection.write(stx+f+etx)
+        serial_connection.write(f)
         rx = serial_connection.readline().decode('utf-8')
         print(list(rx))
         # if 'N' not in rx:
         #     break
         
-        s = ','.join([i['GPS_LATI'], i['GPS_LONG']])
-        s = 'data,'+s
-        print('Second = '+s)    
+        s = ','.join([i['GPS_LATI'][:8], i['GPS_LONG'][:9]])
+        s = 'd,'+s
+        s = s + ('0'*(20-len(s)))
+        print('Second = '+s, len(s))    
         s = s.encode('utf-8')
         
-        serial_connection.write(stx+s+etx)
+        serial_connection.write(s)
         rx = serial_connection.readline().decode('utf-8')
         print(list(rx))
         # if 'N' not in rx:
@@ -63,8 +65,8 @@ def getBusInfo(busname, busrouteno):
     stx = stx.to_bytes(1)
     etx = 3
     etx = etx.to_bytes(1)
-    data = 'OutPut'.encode('utf-8')
-    serial_connection.write(stx + data + etx)
+    data = ('OutPut'+('0'*14)).encode('utf-8')
+    serial_connection.write(data)
             
 
 def populate_ports():
@@ -89,8 +91,8 @@ def open_serial():
             stx = stx.to_bytes(1)
             etx = 3
             etx = etx.to_bytes(1)
-            data = 'Input'.encode('utf-8')
-            serial_connection.write(stx + data + etx)
+            data = ('Input'+('0'*15)).encode('utf-8')
+            serial_connection.write(data)
         except Exception as e:
             ui.IsOpenLabel.setText("연결 실패: {}".format(str(e)))
 
