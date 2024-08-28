@@ -5,6 +5,7 @@ import serial
 import serial.tools.list_ports
 import time
 
+
 ui = Ui_Dialog()
 
 serial_connection = None

@@ -85,7 +85,7 @@ class Ui_Dialog(object):
         self.label_7.setGeometry(QtCore.QRect(270, 460, 231, 121))
         font = QtGui.QFont()
         font.setFamily("나눔고딕")
-        font.setPointSize(28)
+        font.setPointSize(22)
         font.setBold(True)
         font.setWeight(75)
         self.label_7.setFont(font)
