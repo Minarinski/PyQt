@@ -52,8 +52,12 @@ class ApiThread(QThread):
                     if len(ArriveInfo) != 0  and arsId:
                         response = requests.get(f'http://openapitraffic.daejeon.go.kr/api/rest/stationinfo/getStationByUid?serviceKey={self.key}&arsId={arsId}')
                         BusStopDict = xmltodict.parse(response.text)
-                        if 'BUSSTOP_NM' in BusStopDict['ServiceResult']['msgBody']['itemList'].keys():
-                            BusStopNm = BusStopDict['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
+                        if isinstance(BusStopDict['ServiceResult']['msgBody']['itemList'], dict):
+                            if 'BUSSTOP_NM' in BusStopDict['ServiceResult']['msgBody']['itemList'].keys():
+                                BusStopNm = BusStopDict['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
+                        else:
+                            if 'BUSSTOP_NM' in BusStopDict['ServiceResult']['msgBody']['itemList'][0].keys():
+                                BusStopNm = BusStopDict['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
                     RouteID = ArriveInfo['ROUTE_CD']
                     CarNM = ArriveInfo['CAR_REG_NO']
                     
@@ -120,14 +124,19 @@ class SerialThread(QThread):
                     dataSplit = data[4:-4].split(',')
                     idx = int(dataSplit[0]) + (5 * flag)
                     if dataSplit[1] == '1' or dataSplit[1] == '2':
-                        if idx not in GlobalBoardsList and idx < 6:  
+                        if '2'+str(idx) not in GlobalBoardsList and idx < 6:
+                            if '1'+str(idx) in GlobalBoardsList:
+                                GlobalBoardsList.remove('1'+str(idx)) 
+                            print(GlobalBoardsList, dataSplit[1]+str(idx)) 
                             GlobalBoardsList.append(dataSplit[1]+str(idx))
+                            print(GlobalBoardsList)
                             n = GlobalArriveInfoList[idx]['ROUTE_NO']
                             if dataSplit[1] == '1':
                                 speakList.append(n+'번 버스 호출 완료')
                             else:
                                 speakList.append(n+'번 버스 헬프콜 호출 완료')
-                            print(idx, self.BoardingNumList)
+                            
+                            print(idx, GlobalBoardsList)
                             txData = []
                             txData.append(str(dataSplit[1]))
                             if GlobalArriveInfoList[idx]['ROUTE_NO'][0] == '마':
@@ -144,8 +153,12 @@ class SerialThread(QThread):
                             txData = (txData + '!' + txData2 + '!').encode('utf-8')                            
                             self.ser.write(stx + txData + etx)
                     else:
-                        if idx in self.BoardingNumList:
-                            GlobalBoardsList.remove(idx)
+                        if '1'+str(idx) in GlobalBoardsList:
+                            GlobalBoardsList.remove('1'+str(idx))
+                        if '2'+str(idx) in GlobalBoardsList:
+                            GlobalBoardsList.remove('2'+str(idx))
+                        
+                            
             self.update_boarding_info.emit(self.BoardingNumList)
 
 class PageFlagThread(QThread):
@@ -349,8 +362,10 @@ class BusArrivalApp(QtWidgets.QDialog):
             self.labelList[i]['Minute'].setStyleSheet("color: rgb(255, 0, 4);")
             self.labelList[i]['Minute'].setText('진입중')
             #print(idx, self.BoardingNumList)
-            if idx in GlobalBoardsList:
-                GlobalBoardsList.remove(idx)
+            if '1'+str(idx) in GlobalBoardsList:
+                GlobalBoardsList.remove('1'+str(idx))
+            if '2'+str(idx) in GlobalBoardsList:
+                GlobalBoardsList.remove('2'+str(idx))
             if GlobalArriveInfoList[idx]['ROUTE_NO']+'번 버스가 진입중입니다. 뒤로 한걸음 물러서 주세요' not in speakList:
                 speakList.append(GlobalArriveInfoList[idx]['ROUTE_NO']+'번 버스가 진입중입니다. 뒤로 한걸음 물러서 주세요')
                 #self.serial_thread.update_boarding_info.emit(self.BoardingNumList)
