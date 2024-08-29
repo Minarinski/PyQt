@@ -157,6 +157,9 @@ class SerialThread(QThread):
                             GlobalBoardsList.remove('1'+str(idx))
                         if '2'+str(idx) in GlobalBoardsList:
                             GlobalBoardsList.remove('2'+str(idx))
+                        n = GlobalArriveInfoList[idx]['ROUTE_NO']
+                        speakList.append(n+'번 버스 호출이 취소되었습니다')
+                        
                         txData = []
                         txData.append('0')
                         if GlobalArriveInfoList[idx]['ROUTE_NO'][0] == '마':
@@ -230,7 +233,7 @@ class SpeakThread(QThread):
         return korean_number.strip()
 
     def speak(self, text):
-        if text[0] == '안':
+        if text[0] == '몸':
             self.engine.say(text)
         elif text[0] == '마':
             self.engine.say(text[:2] + self.number_to_korean(text[2]) + text[3:])
@@ -297,7 +300,7 @@ class BusArrivalApp(QtWidgets.QDialog):
         
         self.speakTimer = QTimer()
         self.speakTimer.timeout.connect(self.guideSound)
-        self.speakTimer.start(10000)
+        self.speakTimer.start(40000)
 
     def setupUi(self):
         self.ui = Ui_Dialog()
@@ -345,7 +348,7 @@ class BusArrivalApp(QtWidgets.QDialog):
         
     def guideSound(self):
         global speakList
-        speakList.append('안내방송입니다.')
+        speakList.append('몸이 불편하신 분은, 버튼을 2초간 누르시면, 기사님께 탑승도움을 요청 할 수 있습니다.')
 
     def updateGui(self):
         self.now = datetime.now()
