@@ -57,7 +57,7 @@ class ApiThread(QThread):
                                 BusStopNm = BusStopDict['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
                         else:
                             if 'BUSSTOP_NM' in BusStopDict['ServiceResult']['msgBody']['itemList'][0].keys():
-                                BusStopNm = BusStopDict['ServiceResult']['msgBody']['itemList']['BUSSTOP_NM']
+                                BusStopNm = BusStopDict['ServiceResult']['msgBody']['itemList'][0]['BUSSTOP_NM']
                     RouteID = ArriveInfo['ROUTE_CD']
                     CarNM = ArriveInfo['CAR_REG_NO']
                     
@@ -134,7 +134,7 @@ class SerialThread(QThread):
                             if dataSplit[1] == '1':
                                 speakList.append(n+'번 버스 호출 완료')
                             else:
-                                speakList.append(n+'번 버스 헬프콜 호출 완료')
+                                speakList.append(n+'번 버스 호출 완료. 탑승 도움을 요청했습니다.')
                             
                             print(idx, GlobalBoardsList)
                             txData = []
@@ -246,6 +246,7 @@ class SpeakThread(QThread):
         while True:
             if speakList:
                 self.speak(speakList.pop(0))
+                time.sleep(3)
 
 class BusArrivalApp(QtWidgets.QDialog):
     def __init__(self):
@@ -273,6 +274,8 @@ class BusArrivalApp(QtWidgets.QDialog):
         self.BoardingUiList = [self.ui.label_32, self.ui.label_33, self.ui.label_34, self.ui.label_35]
         
         
+        self.nowArriveList = []
+        
         self.getInfo("info.txt")
 
         # QThreads
@@ -280,7 +283,7 @@ class BusArrivalApp(QtWidgets.QDialog):
         self.api_thread.update_arrive_info.connect(self.updateArriveInfo)
         self.api_thread.start()
 
-        self.serial_thread = SerialThread('COM8', self.pageFlag, self.BusStopArs)
+        self.serial_thread = SerialThread('COM3', self.pageFlag, self.BusStopArs)
         self.serial_thread.update_boarding_info.connect(self.updateBoardingInfo)
         self.serial_thread.start()
 
@@ -386,7 +389,11 @@ class BusArrivalApp(QtWidgets.QDialog):
         if self.ArriveInfoList[idx]['MSG_TP'] == '07':
             self.labelList[i]['Minute'].setStyleSheet("color: rgb(255, 255, 255);")
             self.labelList[i]['Minute'].setText('운행대기')
+            if GlobalArriveInfoList[idx]['ROUTE_NO'] in self.nowArriveList:
+                self.nowArriveList.remove(GlobalArriveInfoList[idx]['ROUTE_NO'])
         elif self.ArriveInfoList[idx]['MSG_TP'] == '06':
+            if not self.nowArriveList:
+                self.nowArriveList.append(GlobalArriveInfoList[idx]['ROUTE_NO'])
             self.labelList[i]['Minute'].setStyleSheet("color: rgb(255, 0, 4);")
             self.labelList[i]['Minute'].setText('진입중')
             #print(idx, self.BoardingNumList)
@@ -403,6 +410,8 @@ class BusArrivalApp(QtWidgets.QDialog):
             self.labelList[i]['Minute'].setStyleSheet("color: rgb(255, 0, 4);")
             self.labelList[i]['Minute'].setText('잠시 후\n도착')
         else:
+            if GlobalArriveInfoList[idx]['ROUTE_NO'] in self.nowArriveList:
+                self.nowArriveList.remove(GlobalArriveInfoList[idx]['ROUTE_NO'])
             self.labelList[i]['Minute'].setStyleSheet("color: rgb(255, 255, 255);")
             self.labelList[i]['Minute'].setText(self.ArriveInfoList[idx]['EXTIME_MIN'] + '분')
 
@@ -416,7 +425,6 @@ class BusArrivalApp(QtWidgets.QDialog):
         self.updateAdsCnt = (self.updateAdsCnt + 1) % 7
 
     def updateNowArrive(self):
-        self.nowArriveList = []
         self.nowArriveStr = ' '.join(self.nowArriveList)
         self.ui.label_22.setText(self.nowArriveStr)
 
