@@ -5,6 +5,10 @@ import serial
 import serial.tools.list_ports
 import time
 
+from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout, QPushButton
+from PyQt5.QtCore import Qt  # Qt 임포트 추가
+from PyQt5.QtGui import QFont  # QFont 임포트 추가
+from PyQt5.QtGui import QIcon
 
 ui = Ui_Dialog()
 
@@ -37,7 +41,8 @@ def getBusInfo(busname, busrouteno):
     stx = stx.to_bytes(1)
     etx = 3
     etx = etx.to_bytes(1)
-    for i in l:
+    for idx, i in enumerate(l):
+        ui.progressBar.setValue(int((idx+1)*(100/len(l))))
         f = ','.join([i['busname'], i['busrouteno'], i['BusStopID'][:5]])
         f = 'Data,'+f
         f = f + ('0'*(20-len(f)))
@@ -67,6 +72,7 @@ def getBusInfo(busname, busrouteno):
     etx = etx.to_bytes(1)
     data = ('OutPut'+('0'*14)).encode('utf-8')
     serial_connection.write(data)
+    msg_box()
             
 
 def populate_ports():
@@ -93,6 +99,8 @@ def open_serial():
             etx = etx.to_bytes(1)
             data = ('Input'+('0'*15)).encode('utf-8')
             serial_connection.write(data)
+            
+            ui.progressBar.setValue(0)
         except Exception as e:
             ui.IsOpenLabel.setText("연결 실패: {}".format(str(e)))
 
@@ -110,14 +118,42 @@ def print_bus_route():
         getBusInfo(bus_name, bus_route_no)
     else:
         print('serial not open!!!!!!!')
+        
+def msg_box():
+    dialog = QDialog()  # QDialog 생성
+    dialog.setWindowTitle("다운로드 성공")  # 제목 설정
+    dialog.setWindowFlag(Qt.FramelessWindowHint)  # 테두리 없는 창 설정 (필요시)
+
+    dialog.setStyleSheet("QDialog { border: 2px solid black; border-radius: 5px; background-color: white; }") 
+
+    layout = QVBoxLayout()  # 레이아웃 생성
+    label = QLabel('<h2 style="text-align: center;">데이터 입력 완료</h2>')  # 중앙 정렬 텍스트
+    font = QFont("NanumGothic", 12)  # 나눔고딕 폰트 설정 (크기 12)
+    label.setFont(font)  # QLabel에 폰트 설정
+    layout.addWidget(label)  # 레이아웃에 텍스트 추가
+
+    button = QPushButton("확인")  # 확인 버튼
+    button.clicked.connect(dialog.accept)  # 버튼 클릭 시 다이얼로그 닫기
+    font = QFont("NanumGothic", 10)
+    button.setFont(font)
+    layout.addWidget(button)  # 레이아웃에 버튼 추가
     
+    dialog.setLayout(layout)  # 다이얼로그 레이아웃 설정
+    dialog.exec_()  # 다이얼로그 실행        
+
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Dialog = QtWidgets.QDialog()
+    
     ui.setupUi(Dialog)
+    Dialog.setWindowTitle("노선 데이터 입력")
+    Dialog.setWindowIcon(QIcon('busIcon.png'))
+    
+    ui.OpenBtn.setFocus()
+    
     Dialog.show()
     populate_ports()
     populate_baudrates()
