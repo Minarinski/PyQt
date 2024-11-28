@@ -29,7 +29,7 @@ class ApiThread(QThread):
         
 
     def run(self):
-        while True:
+        while self.key:
             response = requests.get(f'http://openapitraffic.daejeon.go.kr/api/rest/arrive/getArrInfoByStopID?serviceKey={self.key}&BusStopID={self.BusStopID}')
             ArriveInfoDict = xmltodict.parse(response.text)
             ArriveInfoListBefore = []
@@ -96,14 +96,19 @@ class SerialThread(QThread):
 
     def __init__(self, serial_port, pageFlag, BusStopArs):
         super().__init__()
-        self.ser = serial.Serial(
-            port=serial_port, 
-            baudrate=115200, 
-            parity='N',
-            stopbits=1,
-            bytesize=8,
-            timeout=8
-        )
+        try:
+            self.ser = serial.Serial(
+                port=serial_port, 
+                baudrate=115200, 
+                parity='N',
+                stopbits=1,
+                bytesize=8,
+                timeout=8
+            )
+        except:
+            print('Serial port open error')
+            self.ser = None
+            
         self.pageFlag = pageFlag
         self.BoardingNumList = []
         self.BusStopArs = BusStopArs
@@ -116,7 +121,7 @@ class SerialThread(QThread):
         stx = stx.to_bytes(1)
         etx = 3
         etx = etx.to_bytes(1)
-        while True:
+        while self.ser:
             if self.ser.in_waiting > 0:
                 data = self.ser.readline().decode('utf-8').rstrip()
                 print(data)
@@ -276,7 +281,7 @@ class BusArrivalApp(QtWidgets.QDialog):
         
         self.nowArriveList = []
         
-        self.getInfo("info.txt")
+        self.getInfo("inf1o.txt")
 
         # QThreads
         self.api_thread = ApiThread(self.key, self.BusStopID, self.BusStopArs)
@@ -312,15 +317,19 @@ class BusArrivalApp(QtWidgets.QDialog):
         self.showMaximized()
 
     def getInfo(self, filename):
-        with open(filename, 'r') as f:
-            lines = f.readlines()
-            d = {}
-            for line in lines:
-                a, b = line.split('=')
-                d[a] = b.strip()
-            self.key = d['key']
-            self.BusStopID = d['BusStopID']
-            self.BusStopArs = d['BusStopArs']
+        try:
+            with open(filename, 'r') as f:
+                lines = f.readlines()
+                d = {}
+                for line in lines:
+                    a, b = line.split('=')
+                    d[a] = b.strip()
+                self.key = d['key']
+                self.BusStopID = d['BusStopID']
+                self.BusStopArs = d['BusStopArs']
+        except:
+            print("Error: Could not read info file.")
+            self.ui.label_22.setText("API KEY를 찾을 수 없습니다.")
 
     def updateArriveInfo(self, ArriveInfoList):
         self.ArriveInfoList = ArriveInfoList
@@ -367,7 +376,8 @@ class BusArrivalApp(QtWidgets.QDialog):
                     self.updateRouteInfo(i, idx)
         
         self.updateAds()
-        self.updateNowArrive()
+        if self.key:
+            self.updateNowArrive()
 
     def clearRouteInfo(self, i):
         self.labelList[i]['Route'].setText('')
